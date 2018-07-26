@@ -1,9 +1,6 @@
 
 package retrospector.hsqldb.datagateway;
 
-import static deleteme.DataManager.createDB;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +9,7 @@ import retrospector.core.datagateway.DataGateway;
 import retrospector.core.entity.Factoid;
 import retrospector.core.entity.Media;
 import retrospector.core.entity.Review;
+import retrospector.core.request.model.RequestableReview;
 
 public class HsqldbGateway implements DataGateway{
     private DbConnector connector;
@@ -56,55 +54,16 @@ public class HsqldbGateway implements DataGateway{
         + "constraint primary_key_factoid primary key (id),"
         + "constraint foreign_key_factoid foreign key (mediaID) references media (id) on delete cascade)";
         
-        try {
-            Statement stmt;
-        
-            stmt = connector.getConnection().createStatement();
-            
-            stmt.execute(createMedia);
-            
-            stmt.execute(createReview);
-            
-            stmt.execute(createFactoid);
-            
-        } catch (SQLException ex) {
-            System.err.println("Create error in startDB in connection" + ex);
-        }
+        connector.execute(createMedia);
+
+        connector.execute(createReview);
+
+        connector.execute(createFactoid);
     }
     
     @Override
     public Media addMedia(Media media) {
-        int id = -1;
-        try {
-            PreparedStatement pstmt;
-
-            pstmt = connector.getConnection().prepareStatement(
-                    "insert into media(title,creator,season,episode,description,category,type) values(?,?,?,?,?,?,?)",
-                    Statement.RETURN_GENERATED_KEYS);
-            pstmt.setString(1, media.getTitle());
-            pstmt.setString(2, media.getCreator());
-            pstmt.setString(3, media.getSeason());
-            pstmt.setString(4, media.getEpisode());
-            pstmt.setString(5, media.getDescription());
-            pstmt.setString(6, media.getCategory());
-            pstmt.setString(7, media.getType().toString());
-            int updated = pstmt.executeUpdate();
-
-            ResultSet rs = pstmt.getGeneratedKeys();
-            boolean key = rs.next();
-            if (updated == 1 && key) {
-                id = rs.getInt(1);
-                for (Review review : media.getReviews())
-                    addReview(review);
-                for (Factoid factoid : media.getFactoids())
-                    addFactoid(factoid);
-            } else if (media.getFactoids().size() > 0 || media.getReviews().size() > 0) {
-                System.err.println("Reviews/Factoids not Saved! :(");
-            }
-        } catch (SQLException ex) {
-            System.err.println("createDB error in connection" + ex);
-        }
-        return getMedia(id);
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -159,6 +118,11 @@ public class HsqldbGateway implements DataGateway{
 
     @Override
     public void deleteFactoid(int factoidId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void reviewRetrieved(RequestableReview requestableReview) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
