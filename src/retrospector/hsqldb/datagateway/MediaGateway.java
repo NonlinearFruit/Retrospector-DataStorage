@@ -6,18 +6,25 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.BeanHandler;
+import org.apache.commons.dbutils.handlers.ScalarHandler;
 import retrospector.core.entity.Media;
+import retrospector.hsqldb.exceptions.EntityNotFoundException;
 import retrospector.hsqldb.exceptions.QueryFailedException;
 import retrospector.hsqldb.exceptions.TableCreationQueryFailedException;
 
 public class MediaGateway {
    
     private DbConnector connector;
-    private ResultSetHandler<List<Media>> mediaResultHandler;
+    private ResultSetHandler<Media> mediaResultHandler;
+    private ResultSetHandler<Integer> mediaIdResultHandler;
+    private ResultSetHandler<List<Media>> mediaListResultHandler;
     
     public MediaGateway(DbConnector connector) {
         this.connector = connector;
-        this.mediaResultHandler = new ResultSetHandler<List<Media>>(){
+        this.mediaResultHandler = new BeanHandler<>(Media.class);
+        this.mediaIdResultHandler = new ScalarHandler<>();
+        this.mediaListResultHandler = new ResultSetHandler<List<Media>>(){
             @Override
             public List<Media> handle(ResultSet rs) throws SQLException {
                 List<Media> list = new ArrayList<>();
@@ -59,6 +66,43 @@ public class MediaGateway {
     }
     
     public Media addMedia(Media media) {
-        return connector.insert(mediaResultHandler, "INSERT INTO MEDIA(DESCRIPTION) VALUES (?)", media.getDescription()).get(0);
+        return getMedia(connector.insert(mediaIdResultHandler, "INSERT INTO media(title, creator, season, episode, category, type, description) VALUES (?,?,?,?,?,?,?)", 
+                media.getTitle(),
+                media.getCreator(),
+                media.getSeason(),
+                media.getEpisode(),
+                media.getCategory(),
+                media.getType().toString(),
+                media.getDescription()
+        ));
+    }
+    
+    public Media getMedia(int mediaId) {
+        Media media = connector.select(mediaResultHandler, "SELECT * FROM media WHERE id=?", mediaId);
+        if (media == null)
+            throw new EntityNotFoundException();
+        return media;
+    }
+
+    public Media updateMedia(Media media) {
+        connector.execute("UPDATE media SET title=?,creator=?,season=?,episode=?,description=?,category=?,type=? where id=?",
+                media.getTitle(),
+                media.getCreator(),
+                media.getSeason(),
+                media.getEpisode(),
+                media.getDescription(),
+                media.getCategory(),
+                media.getType().toString(),
+                media.getId()
+        );
+        return getMedia(media.getId());
+    }
+
+    void deleteMedia(int mediaId) {
+        connector.execute("delete from media where id=?", mediaId);
+    }
+
+    List<Media> getMedia() {
+        return connector.select(mediaListResultHandler, "SELECT * FROM media");
     }
 }

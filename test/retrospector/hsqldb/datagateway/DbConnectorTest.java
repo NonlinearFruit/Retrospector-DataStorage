@@ -4,11 +4,16 @@ package retrospector.hsqldb.datagateway;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.junit.After;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
@@ -112,8 +117,67 @@ public class DbConnectorTest {
         connector.insert(new BeanListHandler<>(String.class), "a daw dawdad");
     }
     
-    public void select_ReturnsRecords() {
+    @Test
+    public void select_ReturnsRecord() {
+        connector = new DbConnector(testConnectionString);
+        clearDatabase(connector);
+        setupDatabase();
+        int id = addEmployee();
+        ResultSetHandler<Employee> handler = new ResultSetHandler<Employee>(){
+            @Override
+            public Employee handle(ResultSet rs) throws SQLException {
+                rs.next();
+                Employee employee = new Employee();
+                employee.firstname = rs.getString("firstname");
+                employee.lastname = rs.getString("lastname");
+                employee.salary = rs.getDouble("salary");
+                return employee;
+            }
+            
+        };
         
+        Employee employee = connector.select(handler, "Select * from employee where id="+id);
+        
+        assertNotEquals(null, employee.firstname);
+        assertNotEquals(null, employee.lastname);
+        assertNotEquals(null, employee.salary);
+    }
+    
+    @Test
+    public void select_ReturnsRecords() {
+        connector = new DbConnector(testConnectionString);
+        clearDatabase(connector);
+        setupDatabase();
+        int id1 = addEmployee();
+        int id2 = addEmployee();
+        int id3 = addEmployee();
+        ResultSetHandler<List<Employee>> handler = new ResultSetHandler<List<Employee>>(){
+            @Override
+            public List<Employee> handle(ResultSet rs) throws SQLException {
+                List<Employee> list = new ArrayList<>();
+                
+                while (rs.next()) {
+                    Employee employee = new Employee();
+                    employee.firstname = rs.getString("firstname");
+                    employee.lastname = rs.getString("lastname");
+                    employee.salary = rs.getDouble("salary");
+                    list.add(employee);
+                }
+                
+                return list;
+            }
+            
+        };
+        
+        List<Employee> employees = connector.select(handler, "Select * from employee");
+        
+        assertNotEquals(null, employees);
+        assertNotEquals(0, employees.size());
+        for (Employee employee : employees) {
+            assertNotEquals(null, employee.firstname);
+            assertNotEquals(null, employee.lastname);
+            assertNotEquals(null, employee.salary);
+        }
     }
     
     @Test(expected = QueryFailedException.class)
@@ -135,5 +199,39 @@ public class DbConnectorTest {
             "    employeeid int,\n" +
             "    address varchar(255))"
             );
+    }
+    
+    private int addEmployee() {
+        return connector.insert(new ScalarHandler<Integer>(), "INSERT INTO PUBLIC.EMPLOYEE (firstname, lastname, salary) VALUES ('name', 'last', 1.2)");
+    }
+    
+    public class Employee{
+        private String firstname;
+        private String lastname;
+        private Double salary;
+
+        public String getFirstname() {
+            return firstname;
+        }
+
+        public void setFirstname(String firstname) {
+            this.firstname = firstname;
+        }
+
+        public String getLastname() {
+            return lastname;
+        }
+
+        public void setLastname(String lastname) {
+            this.lastname = lastname;
+        }
+
+        public Double getSalary() {
+            return salary;
+        }
+
+        public void setSalary(Double salary) {
+            this.salary = salary;
+        }
     }
 }
