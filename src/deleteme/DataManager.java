@@ -56,10 +56,6 @@ public class DataManager {
         return getMedia(true);
     }
     
-    public static List<Media> getMedia() {
-        return getMedia(false);
-    }
-    
     /**
      * Gets media objects from the database
      * @param wishlistOrNo [true: wishlist only, false: media only]

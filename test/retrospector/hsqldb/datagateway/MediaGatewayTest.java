@@ -67,9 +67,9 @@ public class MediaGatewayTest {
         
         Media returnedMedia = mediaGateway.addMedia(media);
         
-        verifyMediaAreSame(media, returnedMedia);
         List<Media> results = connector.select(mediaResultHandler, "select ID from MEDIA where DESCRIPTION=?", returnedMedia.getDescription());
-        assertEquals(returnedMedia.getId(), results.get(0).getId());
+        media.setId(results.get(0).getId());
+        verifyMediaAreSame(media, returnedMedia);
     }
     
     @Test
@@ -162,6 +162,7 @@ public class MediaGatewayTest {
             return;
         assertNotNull(media);
         assertNotNull(returnedMedia);
+        assertEquals(media.getId(), returnedMedia.getId());
         assertEquals(media.getTitle(), returnedMedia.getTitle());
         assertEquals(media.getCreator(), returnedMedia.getCreator());
         assertEquals(media.getSeason(), returnedMedia.getSeason());

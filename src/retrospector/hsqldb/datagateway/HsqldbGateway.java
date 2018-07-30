@@ -22,29 +22,7 @@ public class HsqldbGateway implements DataGateway{
     }
     
     private void startDB(){
-        String createMedia = ""
-        + "create table if not exists media ("
-        + "id integer not null generated always as identity (start with 1, increment by 1),   "
-        + "title varchar(1000000),"
-        + "creator varchar(1000000),"
-        + "season varchar(1000000),"
-        + "episode varchar(1000000),"
-        + "description varchar(1000000),"
-        + "category varchar(1000000),"
-        + "type varchar(1000000),"
-        + "constraint primary_key_media primary key (id))";
       
-        String createReview = ""
-        + "create table if not exists review ("
-        + "id integer not null generated always as identity (start with 1, increment by 1),   "
-        + "mediaID integer not null,   "
-        + "reviewer varchar(1000000),"
-        + "date date,"
-        + "review varchar(1000000),"
-        + "rate int,"
-        + "constraint primary_key_review primary key (id),"
-        + "constraint foreign_key_review foreign key (mediaID) references media (id) on delete cascade)";
-        
         String createFactoid = ""
         + "create table if not exists factoid ("
         + "id integer not null generated always as identity (start with 1, increment by 1),   "
@@ -54,10 +32,6 @@ public class HsqldbGateway implements DataGateway{
         + "constraint primary_key_factoid primary key (id),"
         + "constraint foreign_key_factoid foreign key (mediaID) references media (id) on delete cascade)";
         
-        connector.execute(createMedia);
-
-        connector.execute(createReview);
-
         connector.execute(createFactoid);
     }
     
