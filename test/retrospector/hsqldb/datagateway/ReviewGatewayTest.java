@@ -127,7 +127,7 @@ public class ReviewGatewayTest {
     }
     
     @Test
-    public void getReviews_GetsAllReview() {
+    public void getReviews_GetsReviews() {
         List<Review> list = new ArrayList<>();
         list.add(reviewGateway.addReview(getNewReview()));
         list.add(reviewGateway.addReview(getNewReview()));

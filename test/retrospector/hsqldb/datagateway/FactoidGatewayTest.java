@@ -1,7 +1,6 @@
 
 package retrospector.hsqldb.datagateway;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -14,15 +13,15 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import retrospector.core.entity.Media;
-import retrospector.core.entity.Review;
+import retrospector.core.entity.Factoid;
 import retrospector.hsqldb.exceptions.EntityNotFoundException;
 import retrospector.hsqldb.exceptions.TableCreationQueryFailedException;
 
 public class FactoidGatewayTest {
 
     private DbConnector connector;
-    private ReviewGateway reviewGateway;
-    private ResultSetHandler<List<Review>> reviewResultHandler;
+    private FactoidGateway factoidGateway;
+    private ResultSetHandler<List<Factoid>> factoidResultHandler;
     
     @Before
     public void setUp() {
@@ -36,9 +35,9 @@ public class FactoidGatewayTest {
         mediaGateway.addMedia(new Media());
         mediaGateway.addMedia(new Media());
         
-        reviewGateway = new ReviewGateway(connector);
-        reviewResultHandler = new BeanListHandler<>(Review.class);
-        reviewGateway.createReviewTableIfDoesNotExist();
+        factoidGateway = new FactoidGateway(connector);
+        factoidResultHandler = new BeanListHandler<>(Factoid.class);
+        factoidGateway.createFactoidTableIfDoesNotExist();
     }
     
     @After
@@ -47,129 +46,123 @@ public class FactoidGatewayTest {
     }
 
     @Test(expected=TableCreationQueryFailedException.class)
-    public void createReviewTableIfDoesNotExist_ThrowsException_WhenTableIsNotCreate() {
+    public void createFactoidTableIfDoesNotExist_ThrowsException_WhenTableIsNotCreate() {
         connector.exit();
         
-        reviewGateway.createReviewTableIfDoesNotExist();
+        factoidGateway.createFactoidTableIfDoesNotExist();
     }
     
     @Test
-    public void createReviewTableIfDoesNotExist_CreatesTable() {
-        reviewGateway.createReviewTableIfDoesNotExist();
+    public void createFactoidTableIfDoesNotExist_CreatesTable() {
+        factoidGateway.createFactoidTableIfDoesNotExist();
         
         List<String> tables = connector.select(new ColumnListHandler<>(), "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES");
-        assertTrue(tables.contains("REVIEW"));
-        List<String> columns = connector.select(new ColumnListHandler<>(), "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='REVIEW'");
+        assertTrue(tables.contains("FACTOID"));
+        List<String> columns = connector.select(new ColumnListHandler<>(), "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='FACTOID'");
         assertTrue(columns.contains("ID"));
-        assertTrue(columns.contains("RATING"));
-        assertTrue(columns.contains("REVIEWER"));
-        assertTrue(columns.contains("REVIEW"));
-        assertTrue(columns.contains("DATE"));
         assertTrue(columns.contains("MEDIAID"));
+        assertTrue(columns.contains("TITLE"));
+        assertTrue(columns.contains("CONTENT"));
     }
 
     @Test
-    public void addReview_AddsReview(){
-        Review review = getNewReview();
+    public void addFactoid_AddsFactoid(){
+        Factoid factoid = getNewFactoid();
         
-        Review returnedReview = reviewGateway.addReview(review);
+        Factoid returnedFactoid = factoidGateway.addFactoid(factoid);
         
-        List<Review> results = connector.select(reviewResultHandler, "select ID from REVIEW where REVIEW=?", review.getReview());
-        review.setId(results.get(0).getId());
-        verifyReviewAreSame(review, returnedReview);
+        List<Factoid> results = connector.select(factoidResultHandler, "select ID from factoid where CONTENT=?", factoid.getContent());
+        factoid.setId(results.get(0).getId());
+        verifyFactoidAreSame(factoid, returnedFactoid);
     }
     
     @Test
-    public void getReview_GetsReview() {
-        Review review = getNewReview();
-        int id = reviewGateway.addReview(review).getId();
-        review.setId(id);
+    public void getFactoid_GetsFactoid() {
+        Factoid factoid = getNewFactoid();
+        int id = factoidGateway.addFactoid(factoid).getId();
+        factoid.setId(id);
         
-        Review returnedReview = reviewGateway.getReview(review.getId());
+        Factoid returnedFactoid = factoidGateway.getFactoid(factoid.getId());
         
-        verifyReviewAreSame(review, returnedReview);
+        verifyFactoidAreSame(factoid, returnedFactoid);
     }
     
     @Test(expected = EntityNotFoundException.class)
-    public void getReview_WhenNoReviewFound_ThrowsException() {
-        reviewGateway.getReview(314);
+    public void getFactoid_WhenNoFactoidFound_ThrowsException() {
+        factoidGateway.getFactoid(314);
     }
     
     @Test
-    public void updateReview_UpdatesReview() {        
-        Review review = getNewReview();
-        review = reviewGateway.addReview(review);
-        review.setMediaId(review.getMediaId()+1);
-        review.setDate(review.getDate().plusDays(1));
-        review.setRating(review.getRating()+1);
-        review.setReview(review.getReview() + "not same");
-        review.setUser(review.getUser() + "not same");
+    public void updateFactoid_UpdatesFactoid() {        
+        Factoid factoid = getNewFactoid();
+        factoid = factoidGateway.addFactoid(factoid);
+        factoid.setMediaId(factoid.getMediaId()+1);
+//        factoid.setDate(factoid.getDate().plusDays(1));
+//        factoid.setRating(factoid.getRating()+1);
+//        factoid.setFactoid(factoid.getFactoid() + "not same");
+//        factoid.setUser(factoid.getUser() + "not same");
         
-        Review returnedReview = reviewGateway.updateReview(review);
+        Factoid returnedFactoid = factoidGateway.updateFactoid(factoid);
         
-        verifyReviewAreSame(review, returnedReview);
+        verifyFactoidAreSame(factoid, returnedFactoid);
     }
     
     @Test(expected = EntityNotFoundException.class)
-    public void deleteReview_DeletesReview() {
-        Review review = getNewReview();
-        review = reviewGateway.addReview(review);
+    public void deleteFactoid_DeletesFactoid() {
+        Factoid factoid = getNewFactoid();
+        factoid = factoidGateway.addFactoid(factoid);
         
-        reviewGateway.deleteReview(review.getId());
+        factoidGateway.deleteFactoid(factoid.getId());
         
-        reviewGateway.getReview(review.getId());
+        factoidGateway.getFactoid(factoid.getId());
     }
     
     @Test
-    public void deleteReview_WhenNoReviewFound_SilentlyFails() {
-        reviewGateway.deleteReview(314);
+    public void deleteFactoid_WhenNoFactoidFound_SilentlyFails() {
+        factoidGateway.deleteFactoid(314);
     }
     
     @Test
-    public void getReviews_GetsAllReview() {
-        List<Review> list = new ArrayList<>();
-        list.add(reviewGateway.addReview(getNewReview()));
-        list.add(reviewGateway.addReview(getNewReview()));
-        list.add(reviewGateway.addReview(getNewReview()));
+    public void getFactoids_GetsFactoids() {
+        List<Factoid> list = new ArrayList<>();
+        list.add(factoidGateway.addFactoid(getNewFactoid()));
+        list.add(factoidGateway.addFactoid(getNewFactoid()));
+        list.add(factoidGateway.addFactoid(getNewFactoid()));
         
-        List<Review> returnedList = reviewGateway.getReviews();
+        List<Factoid> returnedList = factoidGateway.getFactoids();
         
         assertNotNull(returnedList);
         assertTrue(list.size() == returnedList.size());
         list.sort( (x,y) -> x.getId().compareTo(y.getId()));
         returnedList.sort( (x,y) -> x.getId().compareTo(y.getId()));
         for (int i = 0; i < list.size(); i++)
-            verifyReviewAreSame(list.get(i), returnedList.get(i));
+            verifyFactoidAreSame(list.get(i), returnedList.get(i));
     }
     
     @Test
-    public void getReviews_WhenNoReviewFound_ReturnsEmptyList() {
-        List<Review> list = reviewGateway.getReviews();
+    public void getFactoids_WhenNoFactoidFound_ReturnsEmptyList() {
+        List<Factoid> list = factoidGateway.getFactoids();
         
         assertNotNull(list);
         assertTrue(list.isEmpty());
     }
     
-    private Review getNewReview() {
-        Review review = new Review();
-        review.setRating(1729);
-        review.setUser("Arthur Doyle");
-        review.setMediaId(1);
-        review.setDate(LocalDate.now());
-        review.setReview(java.util.UUID.randomUUID().toString());
-        return review;
+    private Factoid getNewFactoid() {
+        Factoid factoid = new Factoid();
+        factoid.setMediaId(1);
+        factoid.setTitle("Genre");
+        factoid.setContent(java.util.UUID.randomUUID().toString());
+        return factoid;
     }
     
-    private void verifyReviewAreSame(Review review, Review returnedReview) {
-        if (review == returnedReview)
+    private void verifyFactoidAreSame(Factoid factoid, Factoid returnedFactoid) {
+        if (factoid == returnedFactoid)
             return;
-        assertNotNull(review);
-        assertNotNull(returnedReview);
-        assertEquals(review.getUser(), returnedReview.getUser());
-        assertEquals(review.getMediaId(), returnedReview.getMediaId());
-        assertEquals(review.getRating(), returnedReview.getRating());
-        assertEquals(review.getDate(), returnedReview.getDate());
-        assertEquals(review.getReview(), returnedReview.getReview());
-        assertEquals(review.getId(), returnedReview.getId());
+        assertNotNull(factoid);
+        assertNotNull(returnedFactoid);
+        assertEquals(factoid.getId(), returnedFactoid.getId());
+        assertEquals(factoid.getMediaId(), returnedFactoid.getMediaId());
+        assertEquals(factoid.getTitle(), returnedFactoid.getTitle());
+        assertEquals(factoid.getContent(), returnedFactoid.getContent());
     }
 }

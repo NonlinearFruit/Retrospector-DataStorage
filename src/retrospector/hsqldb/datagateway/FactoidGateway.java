@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
-import retrospector.core.entity.Review;
+import retrospector.core.entity.Factoid;
 import retrospector.hsqldb.exceptions.EntityNotFoundException;
 import retrospector.hsqldb.exceptions.QueryFailedException;
 import retrospector.hsqldb.exceptions.TableCreationQueryFailedException;
@@ -16,94 +16,86 @@ import retrospector.hsqldb.exceptions.TableCreationQueryFailedException;
 public class FactoidGateway {
    
     private DbConnector connector;
-    private ResultSetHandler<Review> reviewResultHandler;
-    private ResultSetHandler<Integer> reviewIdResultHandler;
-    private ResultSetHandler<List<Review>> reviewListResultHandler;
+    private ResultSetHandler<Factoid> factoidResultHandler;
+    private ResultSetHandler<Integer> factoidIdResultHandler;
+    private ResultSetHandler<List<Factoid>> factoidListResultHandler;
     
     public FactoidGateway(DbConnector connector) {
         this.connector = connector;
-        this.reviewIdResultHandler = new ScalarHandler<>();
-        this.reviewResultHandler = new ResultSetHandler<Review>(){
+        this.factoidIdResultHandler = new ScalarHandler<>();
+        this.factoidResultHandler = new ResultSetHandler<Factoid>(){
             @Override
-            public Review handle(ResultSet rs) throws SQLException {
+            public Factoid handle(ResultSet rs) throws SQLException {
                 if (!rs.next())
                     return null;
-                Review review = new Review();
-                review.setId(rs.getInt("id"));
-                review.setMediaId(rs.getInt("mediaId"));
-                review.setUser(rs.getString("reviewer"));
-                review.setDate(rs.getDate("date").toLocalDate());
-                review.setReview(rs.getString("review"));
-                review.setRating(rs.getInt("rating"));
-                return review;
+                Factoid factoid = new Factoid();
+                factoid.setId(rs.getInt("id"));
+                factoid.setMediaId(rs.getInt("mediaId"));
+                factoid.setTitle(rs.getString("title"));
+                factoid.setContent(rs.getString("content"));
+                return factoid;
             }
         };
-        this.reviewListResultHandler = new ResultSetHandler<List<Review>>(){
+        this.factoidListResultHandler = new ResultSetHandler<List<Factoid>>(){
             @Override
-            public List<Review> handle(ResultSet rs) throws SQLException {
-                List<Review> list = new ArrayList<>();
-                Review review = reviewResultHandler.handle(rs);
-                while(review != null) {
-                    list.add(review);
-                    review = reviewResultHandler.handle(rs);
+            public List<Factoid> handle(ResultSet rs) throws SQLException {
+                List<Factoid> list = new ArrayList<>();
+                Factoid factoid = factoidResultHandler.handle(rs);
+                while(factoid != null) {
+                    list.add(factoid);
+                    factoid = factoidResultHandler.handle(rs);
                 }
                 return list;
             }
         };
     }
     
-    public void createReviewTableIfDoesNotExist() {
-        String createReviewTable = ""
-        + "create table if not exists review ("
+    public void createFactoidTableIfDoesNotExist() {
+        String createFactoidTable = ""
+        + "create table if not exists factoid ("
         + "id integer not null generated always as identity (start with 1, increment by 1),   "
-        + "mediaId integer not null,   "
-        + "reviewer varchar(1000000),"
-        + "date date,"
-        + "review varchar(1000000),"
-        + "rating int,"
-        + "constraint primary_key_review primary key (id),"
-        + "constraint foreign_key_review foreign key (mediaID) references media (id) on delete cascade)";
+        + "mediaID integer not null,   "
+        + "title varchar(1000000),"
+        + "content varchar(1000000),"
+        + "constraint primary_key_factoid primary key (id),"
+        + "constraint foreign_key_factoid foreign key (mediaID) references media (id) on delete cascade)";
         
         try {
-            connector.execute(createReviewTable);
+            connector.execute(createFactoidTable);
         } catch(QueryFailedException ex) {
             throw new TableCreationQueryFailedException(ex);
         }
     }
     
-    public Review addReview(Review review) {
-        return getReview(connector.insert(reviewIdResultHandler, "INSERT INTO review(mediaId, rating, date, reviewer, review) VALUES (?,?,?,?,?)",
-                review.getMediaId(),
-                review.getRating(),
-                Date.valueOf(review.getDate()),
-                review.getUser(),
-                review.getReview()
+    public Factoid addFactoid(Factoid factoid) {
+        return getFactoid(connector.insert(factoidIdResultHandler, "INSERT INTO factoid(mediaId, title, content) VALUES (?,?,?)",
+                factoid.getMediaId(),
+                factoid.getTitle(),
+                factoid.getContent()
         ));
     }
     
-    public Review getReview(int reviewId) {
-        Review review = connector.select(reviewResultHandler, "SELECT * FROM review WHERE id=?", reviewId);
-        if (review == null)
+    public Factoid getFactoid(int factoidId) {
+        Factoid factoid = connector.select(factoidResultHandler, "SELECT * FROM factoid WHERE id=?", factoidId);
+        if (factoid == null)
             throw new EntityNotFoundException();
-        return review;
+        return factoid;
     }
 
-    public Review updateReview(Review review) {
-        connector.execute("UPDATE review SET mediaId=?, rating=?, date=?, reviewer=?, review=?",
-                review.getMediaId(),
-                review.getRating(),
-                Date.valueOf(review.getDate()),
-                review.getUser(),
-                review.getReview()
+    public Factoid updateFactoid(Factoid factoid) {
+        connector.execute("UPDATE factoid SET mediaId=?, title=?, content=?",
+                factoid.getMediaId(),
+                factoid.getTitle(),
+                factoid.getContent()
         );
-        return getReview(review.getId());
+        return getFactoid(factoid.getId());
     }
 
-    void deleteReview(int reviewId) {
-        connector.execute("DELETE FROM review WHERE id=?", reviewId);
+    void deleteFactoid(int factoidId) {
+        connector.execute("DELETE FROM factoid WHERE id=?", factoidId);
     }
 
-    List<Review> getReviews() {
-        return connector.select(reviewListResultHandler, "SELECT * FROM review");
+    List<Factoid> getFactoids() {
+        return connector.select(factoidListResultHandler, "SELECT * FROM factoid");
     }
 }
