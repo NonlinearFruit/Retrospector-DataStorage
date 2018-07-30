@@ -72,13 +72,19 @@ public class ReviewGateway {
     }
     
     public Review addReview(Review review) {
-        return getReview(connector.insert(reviewIdResultHandler, "INSERT INTO review(mediaId, rating, date, reviewer, review) VALUES (?,?,?,?,?)",
-                review.getMediaId(),
-                review.getRating(),
-                Date.valueOf(review.getDate()),
-                review.getUser(),
-                review.getReview()
-        ));
+        try {
+            return getReview(connector.insert(reviewIdResultHandler, "INSERT INTO review(mediaId, rating, date, reviewer, review) VALUES (?,?,?,?,?)",
+                    review.getMediaId(),
+                    review.getRating(),
+                    Date.valueOf(review.getDate()),
+                    review.getUser(),
+                    review.getReview()
+            ));
+        } catch(QueryFailedException qex) {
+            if (review.getMediaId() == null || qex.getMessage().contains("foreign key no parent"))
+                throw new ForeignEntityNotFoundException();
+            throw qex;
+        }
     }
     
     public Review getReview(int reviewId) {

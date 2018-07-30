@@ -80,6 +80,22 @@ public class ReviewGatewayTest {
         verifyReviewAreSame(review, returnedReview);
     }
     
+    @Test(expected = ForeignEntityNotFoundException.class)
+    public void addReview_WhenNoMediaId_ThrowsException() {
+        Review review = getNewReview();
+        review.setMediaId(null);
+        
+        reviewGateway.addReview(review);
+    }
+    
+    @Test(expected = ForeignEntityNotFoundException.class)
+    public void addReview_WhenNoMedia_ThrowsException() {
+        Review review = getNewReview();
+        review.setMediaId(314);
+        
+        reviewGateway.addReview(review);
+    }
+    
     @Test
     public void getReview_GetsReview() {
         Review review = getNewReview();

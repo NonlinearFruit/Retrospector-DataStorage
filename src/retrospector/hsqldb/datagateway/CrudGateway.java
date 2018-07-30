@@ -1,40 +1,24 @@
 
 package retrospector.hsqldb.datagateway;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.List;
 import retrospector.core.datagateway.DataGateway;
 import retrospector.core.entity.Factoid;
 import retrospector.core.entity.Media;
 import retrospector.core.entity.Review;
-import retrospector.core.request.model.RequestableReview;
 
-public class HsqldbGateway implements DataGateway{
-    private DbConnector connector;
-    private PropertyGateway propertyGateway;
+public class CrudGateway implements DataGateway {
+
+    private MediaGateway mediaGateway;
+    private ReviewGateway reviewGateway;
+    private FactoidGateway factoidGateway;
     
-    public HsqldbGateway(PropertyGateway propertyGateway, DbConnector connection) {
-        this.propertyGateway = propertyGateway;
-        this.connector = connection;
-        startDB();
+    CrudGateway(MediaGateway mediaGateway, ReviewGateway reviewGateway, FactoidGateway factoidGateway) {
+        this.mediaGateway = mediaGateway;
+        this.reviewGateway = reviewGateway;
+        this.factoidGateway = factoidGateway;
     }
-    
-    private void startDB(){
-      
-        String createFactoid = ""
-        + "create table if not exists factoid ("
-        + "id integer not null generated always as identity (start with 1, increment by 1),   "
-        + "mediaID integer not null,   "
-        + "title varchar(1000000),"
-        + "content varchar(1000000),"
-        + "constraint primary_key_factoid primary key (id),"
-        + "constraint foreign_key_factoid foreign key (mediaID) references media (id) on delete cascade)";
-        
-        connector.execute(createFactoid);
-    }
-    
+
     @Override
     public Media addMedia(Media media) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -52,6 +36,11 @@ public class HsqldbGateway implements DataGateway{
 
     @Override
     public void deleteMedia(int mediaId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<Media> getMedia() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -76,6 +65,11 @@ public class HsqldbGateway implements DataGateway{
     }
 
     @Override
+    public List<Review> getReviews() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public Factoid addFactoid(Factoid factoid) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -96,7 +90,7 @@ public class HsqldbGateway implements DataGateway{
     }
 
     @Override
-    public void reviewRetrieved(RequestableReview requestableReview) {
+    public List<Factoid> getFactoids() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
