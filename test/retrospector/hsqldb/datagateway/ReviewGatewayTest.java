@@ -2,7 +2,6 @@
 package retrospector.hsqldb.datagateway;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -24,12 +23,12 @@ public class ReviewGatewayTest {
     private DbConnector connector;
     private ReviewGateway reviewGateway;
     private ResultSetHandler<List<Review>> reviewResultHandler;
+    private int invalidMediaId = 314;
     
     @Before
     public void setUp() {
-        connector = new DbConnector(DbConnectorTest.testConnectionString);
-        
         DbConnectorTest.deleteLockFile();
+        connector = new DbConnector(DbConnectorTest.testConnectionString);
         DbConnectorTest.clearDatabase(connector);
         
         MediaGateway mediaGateway = new MediaGateway(connector);
@@ -91,7 +90,7 @@ public class ReviewGatewayTest {
     @Test(expected = ForeignEntityNotFoundException.class)
     public void addReview_WhenNoMedia_ThrowsException() {
         Review review = getNewReview();
-        review.setMediaId(314);
+        review.setMediaId(invalidMediaId);
         
         reviewGateway.addReview(review);
     }
@@ -109,7 +108,7 @@ public class ReviewGatewayTest {
     
     @Test(expected = EntityNotFoundException.class)
     public void getReview_WhenNoReviewFound_ThrowsException() {
-        reviewGateway.getReview(314);
+        reviewGateway.getReview(invalidMediaId);
     }
     
     @Test
@@ -139,7 +138,7 @@ public class ReviewGatewayTest {
     
     @Test
     public void deleteReview_WhenNoReviewFound_SilentlyFails() {
-        reviewGateway.deleteReview(314);
+        reviewGateway.deleteReview(invalidMediaId);
     }
     
     @Test
@@ -162,6 +161,35 @@ public class ReviewGatewayTest {
     @Test
     public void getReviews_WhenNoReviewFound_ReturnsEmptyList() {
         List<Review> list = reviewGateway.getReviews();
+        
+        assertNotNull(list);
+        assertTrue(list.isEmpty());
+    }
+    
+    @Test
+    public void getReviewsById_GetsReviews() {
+        int mediaId = 1;
+        List<Review> list = new ArrayList<>();
+        list.add(reviewGateway.addReview(getNewReview()));
+        list.add(reviewGateway.addReview(getNewReview()));
+        list.add(reviewGateway.addReview(getNewReview()));
+        Review review = getNewReview();
+        review.setMediaId(mediaId + 1);
+        reviewGateway.addReview(review);
+        
+        List<Review> returnedList = reviewGateway.getReviews(mediaId);
+        
+        assertNotNull(returnedList);
+        assertEquals(list.size(), returnedList.size());
+        list.sort( (x,y) -> x.getId().compareTo(y.getId()));
+        returnedList.sort( (x,y) -> x.getId().compareTo(y.getId()));
+        for (int i = 0; i < list.size(); i++)
+            verifyReviewAreSame(list.get(i), returnedList.get(i));
+    }
+    
+    @Test
+    public void getReviewsById_WhenNoReviewFound_ReturnsEmptyList() {
+        List<Review> list = reviewGateway.getReviews(invalidMediaId);
         
         assertNotNull(list);
         assertTrue(list.isEmpty());

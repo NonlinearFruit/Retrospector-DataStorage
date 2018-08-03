@@ -13,20 +13,36 @@ public class CrudGateway implements DataGateway {
     private ReviewGateway reviewGateway;
     private FactoidGateway factoidGateway;
     
-    CrudGateway(MediaGateway mediaGateway, ReviewGateway reviewGateway, FactoidGateway factoidGateway) {
+    public CrudGateway(MediaGateway mediaGateway, ReviewGateway reviewGateway, FactoidGateway factoidGateway) {
         this.mediaGateway = mediaGateway;
         this.reviewGateway = reviewGateway;
         this.factoidGateway = factoidGateway;
+        
+        mediaGateway.createMediaTableIfDoesNotExist();
+        reviewGateway.createReviewTableIfDoesNotExist();
+        factoidGateway.createFactoidTableIfDoesNotExist();
     }
 
     @Override
     public Media addMedia(Media media) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        media = mediaGateway.addMedia(media);
+        for (Review review : media.getReviews()) {
+            review.setMediaId(media.getId());
+            reviewGateway.addReview(review);
+        }
+        for (Factoid factoid : media.getFactoids()) {
+            factoid.setMediaId(media.getId());
+            factoidGateway.addFactoid(factoid);
+        }
+        return media;
     }
 
     @Override
     public Media getMedia(int mediaId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Media media = mediaGateway.getMedia(mediaId);
+        media.getReviews().addAll(reviewGateway.getReviews(mediaId));
+        media.getFactoids().addAll(factoidGateway.getFactoids(mediaId));
+        return media;
     }
 
     @Override

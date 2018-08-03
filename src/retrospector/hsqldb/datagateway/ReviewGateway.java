@@ -105,11 +105,15 @@ public class ReviewGateway {
         return getReview(review.getId());
     }
 
-    void deleteReview(int reviewId) {
+    public void deleteReview(int reviewId) {
         connector.execute("DELETE FROM review WHERE id=?", reviewId);
     }
 
-    List<Review> getReviews() {
+    public List<Review> getReviews() {
         return connector.select(reviewListResultHandler, "SELECT * FROM review");
+    }
+
+    public List<Review> getReviews(Integer mediaId) {
+        return connector.select(reviewListResultHandler, "SELECT * FROM review WHERE mediaId=?", mediaId);
     }
 }

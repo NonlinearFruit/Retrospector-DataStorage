@@ -28,7 +28,7 @@ public class DbConnectorTest {
     
     public static void deleteLockFile(){
         try {
-        Files.deleteIfExists(Paths.get(testDatabaseLockFile));
+            Files.deleteIfExists(Paths.get(testDatabaseLockFile));
         } catch (IOException ex) {
             fail("Failed to delete lock file");
         }

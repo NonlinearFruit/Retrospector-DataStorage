@@ -60,7 +60,7 @@ public class DbConnector {
         try {
             this.connection = DriverManager.getConnection(connectionString,"SA","");   
         } catch(SQLException ex) {
-            throw new DatabaseConnectionFailedException();
+            throw new DatabaseConnectionFailedException(ex);
         }
     }
     

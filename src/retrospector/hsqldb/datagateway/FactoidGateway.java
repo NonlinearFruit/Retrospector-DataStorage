@@ -1,7 +1,6 @@
 
 package retrospector.hsqldb.datagateway;
 
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -68,11 +67,17 @@ public class FactoidGateway {
     }
     
     public Factoid addFactoid(Factoid factoid) {
-        return getFactoid(connector.insert(factoidIdResultHandler, "INSERT INTO factoid(mediaId, title, content) VALUES (?,?,?)",
-                factoid.getMediaId(),
-                factoid.getTitle(),
-                factoid.getContent()
-        ));
+        try {
+            return getFactoid(connector.insert(factoidIdResultHandler, "INSERT INTO factoid(mediaId, title, content) VALUES (?,?,?)",
+                    factoid.getMediaId(),
+                    factoid.getTitle(),
+                    factoid.getContent()
+            ));
+        } catch(QueryFailedException qex) {
+            if (factoid.getMediaId() == null || qex.getMessage().contains("foreign key no parent"))
+                throw new ForeignEntityNotFoundException();
+            throw qex;
+        }
     }
     
     public Factoid getFactoid(int factoidId) {
@@ -91,11 +96,15 @@ public class FactoidGateway {
         return getFactoid(factoid.getId());
     }
 
-    void deleteFactoid(int factoidId) {
+    public void deleteFactoid(int factoidId) {
         connector.execute("DELETE FROM factoid WHERE id=?", factoidId);
     }
 
-    List<Factoid> getFactoids() {
+    public List<Factoid> getFactoids() {
         return connector.select(factoidListResultHandler, "SELECT * FROM factoid");
+    }
+
+    public List<Factoid> getFactoids(Integer mediaId) {
+        return connector.select(factoidListResultHandler, "SELECT * FROM factoid WHERE mediaId=?", mediaId);
     }
 }
