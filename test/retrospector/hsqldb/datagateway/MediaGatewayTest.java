@@ -65,7 +65,7 @@ public class MediaGatewayTest {
     public void addMedia_AddsMedia(){
         Media media = getNewMedia();
         
-        Media returnedMedia = mediaGateway.addMedia(media);
+        Media returnedMedia = mediaGateway.add(media);
         
         List<Media> results = connector.select(mediaResultHandler, "select ID from MEDIA where DESCRIPTION=?", returnedMedia.getDescription());
         media.setId(results.get(0).getId());
@@ -75,23 +75,23 @@ public class MediaGatewayTest {
     @Test
     public void getMedia_GetsMedia() {
         Media media = getNewMedia();
-        int id = mediaGateway.addMedia(media).getId();
+        int id = mediaGateway.add(media).getId();
         media.setId(id);
         
-        Media returnedMedia = mediaGateway.getMedia(media.getId());
+        Media returnedMedia = mediaGateway.get(media.getId());
         
         verifyMediaAreSame(media, returnedMedia);
     }
     
     @Test(expected = EntityNotFoundException.class)
     public void getMedia_WhenNoMediaFound_ThrowsException() {
-        mediaGateway.getMedia(314);
+        mediaGateway.get(314);
     }
     
     @Test
     public void updateMedia_UpdatesMedia() {        
         Media media = getNewMedia();
-        media = mediaGateway.addMedia(media);
+        media = mediaGateway.add(media);
         media.setTitle(media.getTitle() + "not same");
         media.setCreator(media.getCreator()+ "not same");
         media.setSeason(media.getSeason() + "not same");
@@ -100,7 +100,7 @@ public class MediaGatewayTest {
         media.setType(media.getType() == Media.Type.SERIES ? Media.Type.SINGLE : Media.Type.SERIES);
         media.setDescription(media.getDescription() + "not same");
         
-        Media returnedMedia = mediaGateway.updateMedia(media);
+        Media returnedMedia = mediaGateway.update(media);
         
         verifyMediaAreSame(media, returnedMedia);
     }
@@ -108,26 +108,26 @@ public class MediaGatewayTest {
     @Test(expected = EntityNotFoundException.class)
     public void deleteMedia_DeletesMedia() {
         Media media = getNewMedia();
-        media = mediaGateway.addMedia(media);
+        media = mediaGateway.add(media);
         
-        mediaGateway.deleteMedia(media.getId());
+        mediaGateway.delete(media.getId());
         
-        mediaGateway.getMedia(media.getId());
+        mediaGateway.get(media.getId());
     }
     
     @Test
     public void deleteMedia_WhenNoMediaFound_SilentlyFails() {
-        mediaGateway.deleteMedia(314);
+        mediaGateway.delete(314);
     }
     
     @Test
     public void getAllMedia_GetsAllMedia() {
         List<Media> list = new ArrayList<>();
-        list.add(mediaGateway.addMedia(getNewMedia()));
-        list.add(mediaGateway.addMedia(getNewMedia()));
-        list.add(mediaGateway.addMedia(getNewMedia()));
+        list.add(mediaGateway.add(getNewMedia()));
+        list.add(mediaGateway.add(getNewMedia()));
+        list.add(mediaGateway.add(getNewMedia()));
         
-        List<Media> returnedList = mediaGateway.getMedia();
+        List<Media> returnedList = mediaGateway.getAll();
         
         assertNotNull(returnedList);
         assertTrue(list.size() == returnedList.size());
@@ -139,7 +139,7 @@ public class MediaGatewayTest {
     
     @Test
     public void getAllMedia_WhenNoMediaFound_ReturnsEmptyList() {
-        List<Media> list = mediaGateway.getMedia();
+        List<Media> list = mediaGateway.getAll();
         
         assertNotNull(list);
         assertTrue(list.isEmpty());

@@ -1,6 +1,7 @@
 
 package retrospector.hsqldb.datagateway;
 
+import retrospector.hsqldb.exceptions.ForeignEntityNotFoundException;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,12 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
+import retrospector.core.datagateway.CrudDataGateway;
 import retrospector.core.entity.Review;
 import retrospector.hsqldb.exceptions.EntityNotFoundException;
 import retrospector.hsqldb.exceptions.QueryFailedException;
 import retrospector.hsqldb.exceptions.TableCreationQueryFailedException;
 
-public class ReviewGateway {
+public class ReviewGateway implements CrudDataGateway<Review> {
    
     private DbConnector connector;
     private ResultSetHandler<Review> reviewResultHandler;
@@ -71,9 +73,9 @@ public class ReviewGateway {
         }
     }
     
-    public Review addReview(Review review) {
+    public Review add(Review review) {
         try {
-            return getReview(connector.insert(reviewIdResultHandler, "INSERT INTO review(mediaId, rating, date, reviewer, review) VALUES (?,?,?,?,?)",
+            return get(connector.insert(reviewIdResultHandler, "INSERT INTO review(mediaId, rating, date, reviewer, review) VALUES (?,?,?,?,?)",
                     review.getMediaId(),
                     review.getRating(),
                     Date.valueOf(review.getDate()),
@@ -87,14 +89,14 @@ public class ReviewGateway {
         }
     }
     
-    public Review getReview(int reviewId) {
+    public Review get(int reviewId) {
         Review review = connector.select(reviewResultHandler, "SELECT * FROM review WHERE id=?", reviewId);
         if (review == null)
             throw new EntityNotFoundException();
         return review;
     }
 
-    public Review updateReview(Review review) {
+    public Review update(Review review) {
         connector.execute("UPDATE review SET mediaId=?, rating=?, date=?, reviewer=?, review=?",
                 review.getMediaId(),
                 review.getRating(),
@@ -102,18 +104,18 @@ public class ReviewGateway {
                 review.getUser(),
                 review.getReview()
         );
-        return getReview(review.getId());
+        return get(review.getId());
     }
 
-    public void deleteReview(int reviewId) {
+    public void delete(int reviewId) {
         connector.execute("DELETE FROM review WHERE id=?", reviewId);
     }
 
-    public List<Review> getReviews() {
+    public List<Review> getAll() {
         return connector.select(reviewListResultHandler, "SELECT * FROM review");
     }
 
-    public List<Review> getReviews(Integer mediaId) {
+    public List<Review> getByMediaId(int mediaId) {
         return connector.select(reviewListResultHandler, "SELECT * FROM review WHERE mediaId=?", mediaId);
     }
 }

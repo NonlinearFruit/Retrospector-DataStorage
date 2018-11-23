@@ -1,6 +1,7 @@
 
 package retrospector.hsqldb.datagateway;
 
+import retrospector.hsqldb.exceptions.ForeignEntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -32,8 +33,8 @@ public class FactoidGatewayTest {
         
         MediaGateway mediaGateway = new MediaGateway(connector);
         mediaGateway.createMediaTableIfDoesNotExist();
-        mediaGateway.addMedia(new Media());
-        mediaGateway.addMedia(new Media());
+        mediaGateway.add(new Media());
+        mediaGateway.add(new Media());
         
         factoidGateway = new FactoidGateway(connector);
         factoidResultHandler = new BeanListHandler<>(Factoid.class);
@@ -69,7 +70,7 @@ public class FactoidGatewayTest {
     public void addFactoid_AddsFactoid(){
         Factoid factoid = getNewFactoid();
         
-        Factoid returnedFactoid = factoidGateway.addFactoid(factoid);
+        Factoid returnedFactoid = factoidGateway.add(factoid);
         
         List<Factoid> results = connector.select(factoidResultHandler, "select ID from factoid where CONTENT=?", factoid.getContent());
         factoid.setId(results.get(0).getId());
@@ -80,7 +81,7 @@ public class FactoidGatewayTest {
         Factoid factoid = getNewFactoid();
         factoid.setMediaId(null);
         
-        factoidGateway.addFactoid(factoid);
+        factoidGateway.add(factoid);
     }
     
     @Test(expected = ForeignEntityNotFoundException.class)
@@ -88,34 +89,34 @@ public class FactoidGatewayTest {
         Factoid factoid = getNewFactoid();
         factoid.setMediaId(invalidMediaId);
         
-        factoidGateway.addFactoid(factoid);
+        factoidGateway.add(factoid);
     }
     
     @Test
     public void getFactoid_GetsFactoid() {
         Factoid factoid = getNewFactoid();
-        int id = factoidGateway.addFactoid(factoid).getId();
+        int id = factoidGateway.add(factoid).getId();
         factoid.setId(id);
         
-        Factoid returnedFactoid = factoidGateway.getFactoid(factoid.getId());
+        Factoid returnedFactoid = factoidGateway.get(factoid.getId());
         
         verifyFactoidAreSame(factoid, returnedFactoid);
     }
     
     @Test(expected = EntityNotFoundException.class)
     public void getFactoid_WhenNoFactoidFound_ThrowsException() {
-        factoidGateway.getFactoid(invalidMediaId);
+        factoidGateway.get(invalidMediaId);
     }
     
     @Test
     public void updateFactoid_UpdatesFactoid() {        
         Factoid factoid = getNewFactoid();
-        factoid = factoidGateway.addFactoid(factoid);
+        factoid = factoidGateway.add(factoid);
         factoid.setMediaId(factoid.getMediaId()+1);
         factoid.setTitle(factoid.getTitle() + "not same");
         factoid.setContent(factoid.getContent());
         
-        Factoid returnedFactoid = factoidGateway.updateFactoid(factoid);
+        Factoid returnedFactoid = factoidGateway.update(factoid);
         
         verifyFactoidAreSame(factoid, returnedFactoid);
     }
@@ -123,26 +124,26 @@ public class FactoidGatewayTest {
     @Test(expected = EntityNotFoundException.class)
     public void deleteFactoid_DeletesFactoid() {
         Factoid factoid = getNewFactoid();
-        factoid = factoidGateway.addFactoid(factoid);
+        factoid = factoidGateway.add(factoid);
         
-        factoidGateway.deleteFactoid(factoid.getId());
+        factoidGateway.delete(factoid.getId());
         
-        factoidGateway.getFactoid(factoid.getId());
+        factoidGateway.get(factoid.getId());
     }
     
     @Test
     public void deleteFactoid_WhenNoFactoidFound_SilentlyFails() {
-        factoidGateway.deleteFactoid(invalidMediaId);
+        factoidGateway.delete(invalidMediaId);
     }
     
     @Test
     public void getFactoids_GetsFactoids() {
         List<Factoid> list = new ArrayList<>();
-        list.add(factoidGateway.addFactoid(getNewFactoid()));
-        list.add(factoidGateway.addFactoid(getNewFactoid()));
-        list.add(factoidGateway.addFactoid(getNewFactoid()));
+        list.add(factoidGateway.add(getNewFactoid()));
+        list.add(factoidGateway.add(getNewFactoid()));
+        list.add(factoidGateway.add(getNewFactoid()));
         
-        List<Factoid> returnedList = factoidGateway.getFactoids();
+        List<Factoid> returnedList = factoidGateway.getAll();
         
         assertNotNull(returnedList);
         assertTrue(list.size() == returnedList.size());
@@ -154,7 +155,7 @@ public class FactoidGatewayTest {
     
     @Test
     public void getFactoids_WhenNoFactoidFound_ReturnsEmptyList() {
-        List<Factoid> list = factoidGateway.getFactoids();
+        List<Factoid> list = factoidGateway.getAll();
         
         assertNotNull(list);
         assertTrue(list.isEmpty());
@@ -164,14 +165,14 @@ public class FactoidGatewayTest {
     public void getFactoidsById_GetsFactoids() {
         int mediaId = 1;
         List<Factoid> list = new ArrayList<>();
-        list.add(factoidGateway.addFactoid(getNewFactoid()));
-        list.add(factoidGateway.addFactoid(getNewFactoid()));
-        list.add(factoidGateway.addFactoid(getNewFactoid()));
+        list.add(factoidGateway.add(getNewFactoid()));
+        list.add(factoidGateway.add(getNewFactoid()));
+        list.add(factoidGateway.add(getNewFactoid()));
         Factoid factoid = getNewFactoid();
         factoid.setMediaId(mediaId + 1);
-        factoidGateway.addFactoid(factoid);
+        factoidGateway.add(factoid);
         
-        List<Factoid> returnedList = factoidGateway.getFactoids(mediaId);
+        List<Factoid> returnedList = factoidGateway.getByMediaId(mediaId);
         
         assertNotNull(returnedList);
         assertEquals(list.size(), returnedList.size());
@@ -183,7 +184,7 @@ public class FactoidGatewayTest {
     
     @Test
     public void getFactoidsById_WhenNoFactoidFound_ReturnsEmptyList() {
-        List<Factoid> list = factoidGateway.getFactoids(invalidMediaId);
+        List<Factoid> list = factoidGateway.getByMediaId(invalidMediaId);
         
         assertNotNull(list);
         assertTrue(list.isEmpty());

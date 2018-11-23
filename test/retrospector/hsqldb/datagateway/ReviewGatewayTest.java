@@ -1,6 +1,7 @@
 
 package retrospector.hsqldb.datagateway;
 
+import retrospector.hsqldb.exceptions.ForeignEntityNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,8 @@ public class ReviewGatewayTest {
         
         MediaGateway mediaGateway = new MediaGateway(connector);
         mediaGateway.createMediaTableIfDoesNotExist();
-        mediaGateway.addMedia(new Media());
-        mediaGateway.addMedia(new Media());
+        mediaGateway.add(new Media());
+        mediaGateway.add(new Media());
         
         reviewGateway = new ReviewGateway(connector);
         reviewResultHandler = new BeanListHandler<>(Review.class);
@@ -72,7 +73,7 @@ public class ReviewGatewayTest {
     public void addReview_AddsReview(){
         Review review = getNewReview();
         
-        Review returnedReview = reviewGateway.addReview(review);
+        Review returnedReview = reviewGateway.add(review);
         
         List<Review> results = connector.select(reviewResultHandler, "select ID from REVIEW where REVIEW=?", review.getReview());
         review.setId(results.get(0).getId());
@@ -84,7 +85,7 @@ public class ReviewGatewayTest {
         Review review = getNewReview();
         review.setMediaId(null);
         
-        reviewGateway.addReview(review);
+        reviewGateway.add(review);
     }
     
     @Test(expected = ForeignEntityNotFoundException.class)
@@ -92,36 +93,36 @@ public class ReviewGatewayTest {
         Review review = getNewReview();
         review.setMediaId(invalidMediaId);
         
-        reviewGateway.addReview(review);
+        reviewGateway.add(review);
     }
     
     @Test
     public void getReview_GetsReview() {
         Review review = getNewReview();
-        int id = reviewGateway.addReview(review).getId();
+        int id = reviewGateway.add(review).getId();
         review.setId(id);
         
-        Review returnedReview = reviewGateway.getReview(review.getId());
+        Review returnedReview = reviewGateway.get(review.getId());
         
         verifyReviewAreSame(review, returnedReview);
     }
     
     @Test(expected = EntityNotFoundException.class)
     public void getReview_WhenNoReviewFound_ThrowsException() {
-        reviewGateway.getReview(invalidMediaId);
+        reviewGateway.get(invalidMediaId);
     }
     
     @Test
     public void updateReview_UpdatesReview() {        
         Review review = getNewReview();
-        review = reviewGateway.addReview(review);
+        review = reviewGateway.add(review);
         review.setMediaId(review.getMediaId()+1);
         review.setDate(review.getDate().plusDays(1));
         review.setRating(review.getRating()+1);
         review.setReview(review.getReview() + "not same");
         review.setUser(review.getUser() + "not same");
         
-        Review returnedReview = reviewGateway.updateReview(review);
+        Review returnedReview = reviewGateway.update(review);
         
         verifyReviewAreSame(review, returnedReview);
     }
@@ -129,26 +130,26 @@ public class ReviewGatewayTest {
     @Test(expected = EntityNotFoundException.class)
     public void deleteReview_DeletesReview() {
         Review review = getNewReview();
-        review = reviewGateway.addReview(review);
+        review = reviewGateway.add(review);
         
-        reviewGateway.deleteReview(review.getId());
+        reviewGateway.delete(review.getId());
         
-        reviewGateway.getReview(review.getId());
+        reviewGateway.get(review.getId());
     }
     
     @Test
     public void deleteReview_WhenNoReviewFound_SilentlyFails() {
-        reviewGateway.deleteReview(invalidMediaId);
+        reviewGateway.delete(invalidMediaId);
     }
     
     @Test
     public void getReviews_GetsReviews() {
         List<Review> list = new ArrayList<>();
-        list.add(reviewGateway.addReview(getNewReview()));
-        list.add(reviewGateway.addReview(getNewReview()));
-        list.add(reviewGateway.addReview(getNewReview()));
+        list.add(reviewGateway.add(getNewReview()));
+        list.add(reviewGateway.add(getNewReview()));
+        list.add(reviewGateway.add(getNewReview()));
         
-        List<Review> returnedList = reviewGateway.getReviews();
+        List<Review> returnedList = reviewGateway.getAll();
         
         assertNotNull(returnedList);
         assertTrue(list.size() == returnedList.size());
@@ -160,7 +161,7 @@ public class ReviewGatewayTest {
     
     @Test
     public void getReviews_WhenNoReviewFound_ReturnsEmptyList() {
-        List<Review> list = reviewGateway.getReviews();
+        List<Review> list = reviewGateway.getAll();
         
         assertNotNull(list);
         assertTrue(list.isEmpty());
@@ -170,14 +171,14 @@ public class ReviewGatewayTest {
     public void getReviewsById_GetsReviews() {
         int mediaId = 1;
         List<Review> list = new ArrayList<>();
-        list.add(reviewGateway.addReview(getNewReview()));
-        list.add(reviewGateway.addReview(getNewReview()));
-        list.add(reviewGateway.addReview(getNewReview()));
+        list.add(reviewGateway.add(getNewReview()));
+        list.add(reviewGateway.add(getNewReview()));
+        list.add(reviewGateway.add(getNewReview()));
         Review review = getNewReview();
         review.setMediaId(mediaId + 1);
-        reviewGateway.addReview(review);
+        reviewGateway.add(review);
         
-        List<Review> returnedList = reviewGateway.getReviews(mediaId);
+        List<Review> returnedList = reviewGateway.getByMediaId(mediaId);
         
         assertNotNull(returnedList);
         assertEquals(list.size(), returnedList.size());
@@ -189,7 +190,7 @@ public class ReviewGatewayTest {
     
     @Test
     public void getReviewsById_WhenNoReviewFound_ReturnsEmptyList() {
-        List<Review> list = reviewGateway.getReviews(invalidMediaId);
+        List<Review> list = reviewGateway.getByMediaId(invalidMediaId);
         
         assertNotNull(list);
         assertTrue(list.isEmpty());

@@ -1,7 +1,7 @@
 
-package retrospector.hsqldb.datagateway;
+package retrospector.hsqldb.exceptions;
 
-class ForeignEntityNotFoundException extends RuntimeException{
+public class ForeignEntityNotFoundException extends RuntimeException{
 
     public ForeignEntityNotFoundException() {
         super("Foreign Entity Not Found");
