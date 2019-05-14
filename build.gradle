@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
   compile 'commons-dbutils:commons-dbutils:1.7'
-  testCompile group: 'org.hsqldb', name: 'hsqldb', version: '2.4.0'
+  compile group: 'org.hsqldb', name: 'hsqldb', version: '2.4.0'
   // https://jitpack.io/com/github/NonlinearFruit/Retrospector-Core/master-SNAPSHOT/build.log
   compile 'com.github.NonlinearFruit:Retrospector-Core:master-SNAPSHOT'
   testCompile 'junit:junit:4.12'
