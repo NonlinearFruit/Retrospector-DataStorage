@@ -7,6 +7,12 @@
 nbactions.xml
 nb-configuration.xml
 
+# Gradle #
+.gradle
+gradle-app.setting
+!/gradle/wrapper/gradle-wrapper.jar
+.gradletasknamecache
+
 # Class Files #
 *.class
 

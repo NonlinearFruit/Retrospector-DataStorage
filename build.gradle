@@ -1,0 +1,22 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'maven'
+
+repositories {
+  jcenter()
+  maven { url 'https://jitpack.io'}
+}
+
+dependencies {
+  compile 'commons-dbutils:commons-dbutils:1.7'
+  testCompile group: 'org.hsqldb', name: 'hsqldb', version: '2.4.0'
+  // https://jitpack.io/com/github/NonlinearFruit/Retrospector-Core/master-SNAPSHOT/build.log
+  compile 'com.github.NonlinearFruit:Retrospector-Core:master-SNAPSHOT'
+  testCompile 'junit:junit:4.12'
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
