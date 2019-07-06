@@ -16,12 +16,12 @@ import retrospector.hsqldb.exceptions.TableCreationQueryFailedException;
 
 public class MediaGateway implements CrudDataGateway<Media> {
   
-  private DbConnector connector;
+  private DataConnector connector;
   private ResultSetHandler<Media> mediaResultHandler;
   private ResultSetHandler<Integer> mediaIdResultHandler;
   private ResultSetHandler<List<Media>> mediaListResultHandler;
   
-  public MediaGateway(DbConnector connector) {
+  public MediaGateway(DataConnector connector) {
     this.connector = connector;
     this.mediaResultHandler = new BeanHandler<>(Media.class);
     this.mediaIdResultHandler = new ScalarHandler<>();

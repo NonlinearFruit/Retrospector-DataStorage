@@ -16,12 +16,12 @@ import retrospector.hsqldb.exceptions.TableCreationQueryFailedException;
 
 public class FactoidGateway implements CrudDataGateway<Factoid>{
    
-  private DbConnector connector;
+  private DataConnector connector;
   private ResultSetHandler<Factoid> factoidResultHandler;
   private ResultSetHandler<Integer> factoidIdResultHandler;
   private ResultSetHandler<List<Factoid>> factoidListResultHandler;
   
-  public FactoidGateway(DbConnector connector) {
+  public FactoidGateway(DataConnector connector) {
     this.connector = connector;
     this.factoidIdResultHandler = new ScalarHandler<>();
     this.factoidResultHandler = new ResultSetHandler<Factoid>(){

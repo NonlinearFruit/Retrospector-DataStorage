@@ -10,7 +10,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import retrospector.hsqldb.exceptions.QueryFailedException;
 
-public class DbConnector {
+public class DbConnector implements DataConnector {
     private String connectionString;
     private Connection connection;
     private QueryRunner queryRunner;

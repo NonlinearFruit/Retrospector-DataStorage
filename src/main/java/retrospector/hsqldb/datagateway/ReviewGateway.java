@@ -17,12 +17,12 @@ import retrospector.hsqldb.exceptions.TableCreationQueryFailedException;
 
 public class ReviewGateway implements CrudDataGateway<Review> {
    
-    private DbConnector connector;
+    private DataConnector connector;
     private ResultSetHandler<Review> reviewResultHandler;
     private ResultSetHandler<Integer> reviewIdResultHandler;
     private ResultSetHandler<List<Review>> reviewListResultHandler;
     
-    public ReviewGateway(DbConnector connector) {
+    public ReviewGateway(DataConnector connector) {
         this.connector = connector;
         this.reviewIdResultHandler = new ScalarHandler<>();
         this.reviewResultHandler = new ResultSetHandler<Review>(){
