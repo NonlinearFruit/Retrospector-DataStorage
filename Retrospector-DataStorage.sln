@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Retrospector.DataStorage", "Retrospector.DataStorage\Retrospector.DataStorage.csproj", "{D18F1784-54FE-4030-BB2D-26EAACAEAAC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Retrospector.DataStorage.Tests", "Retrospector.DataStorage.Tests\Retrospector.DataStorage.Tests.csproj", "{81157243-4BFD-4D3F-A706-751F7721803A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D18F1784-54FE-4030-BB2D-26EAACAEAAC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D18F1784-54FE-4030-BB2D-26EAACAEAAC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D18F1784-54FE-4030-BB2D-26EAACAEAAC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D18F1784-54FE-4030-BB2D-26EAACAEAAC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81157243-4BFD-4D3F-A706-751F7721803A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81157243-4BFD-4D3F-A706-751F7721803A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81157243-4BFD-4D3F-A706-751F7721803A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81157243-4BFD-4D3F-A706-751F7721803A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
