@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Retrospector.DataStorage.Factoids.Entities;
+using Retrospector.DataStorage.Reviews.Entities;
 
 namespace Retrospector.DataStorage.Tests.TestDoubles
 {
@@ -21,5 +22,6 @@ namespace Retrospector.DataStorage.Tests.TestDoubles
         }
 
         public DbSet<FactoidEntity> Factoids { get; set; }
+        public DbSet<ReviewEntity> Reviews { get; set; }
     }
 }

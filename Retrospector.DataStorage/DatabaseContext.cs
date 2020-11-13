@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Retrospector.DataStorage.Factoids.Entities;
+using Retrospector.DataStorage.Reviews.Entities;
 
 namespace Retrospector.DataStorage
 {
@@ -20,5 +21,6 @@ namespace Retrospector.DataStorage
         }
 
         public DbSet<FactoidEntity> Factoids { get; set; }
+        public DbSet<ReviewEntity> Reviews { get; set; }
     }
 }
