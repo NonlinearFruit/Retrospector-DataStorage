@@ -342,7 +342,7 @@ namespace Retrospector.DataStorage.Tests.Tests.Medias
             {
                 var entityId = ArrangeMediaEntity();
                 _mapper.ReturnFor_ToEntity.Id = entityId;
-                SetProperty(_mapper.ReturnFor_ToEntity, property, value);
+                Reflection.SetProperty(_mapper.ReturnFor_ToEntity, property, value);
 
                 _gateway.Update(null);
 
@@ -357,7 +357,7 @@ namespace Retrospector.DataStorage.Tests.Tests.Medias
                 var property = nameof(MediaEntity.CreatedDate);
                 var entityId = ArrangeMediaEntity(new MediaEntity{CreatedDate = oldDateTime});
                 _mapper.ReturnFor_ToEntity.Id = entityId;
-                SetProperty(_mapper.ReturnFor_ToEntity, property, DateTime.Now);
+                Reflection.SetProperty(_mapper.ReturnFor_ToEntity, property, DateTime.Now);
 
                 _gateway.Update(null);
 
@@ -367,13 +367,8 @@ namespace Retrospector.DataStorage.Tests.Tests.Medias
 
             private void VerifyProperty<T>(object obj, string property, T expected)
             {
-                var actual = obj.GetType().GetProperty(property).GetValue(obj);
+                var actual = Reflection.GetProperty<T>(obj, property);
                 Assert.Equal(expected, actual);
-            }
-
-            private void SetProperty<T>(object obj, string property, T value)
-            {
-                obj.GetType().GetProperty(property).SetValue(obj, value);
             }
 
             private int ArrangeMediaEntity(MediaEntity entity = null)
