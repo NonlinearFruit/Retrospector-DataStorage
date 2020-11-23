@@ -7,12 +7,12 @@ using Retrospector.DataStorage.Reviews.Interfaces;
 
 namespace Retrospector.DataStorage.Reviews
 {
-    public class ReviewGateway : ICrudDataGateway<Review>
+    public class ReviewDataGateway : ICrudDataGateway<Review>
     {
         private readonly IDatabaseContext _context;
         private readonly IReviewMapper _mapper;
 
-        public ReviewGateway(IDatabaseContext context, IReviewMapper mapper)
+        public ReviewDataGateway(IDatabaseContext context, IReviewMapper mapper)
         {
             _context = context;
             _mapper = mapper;

@@ -7,12 +7,12 @@ using Retrospector.DataStorage.Medias.Interfaces;
 
 namespace Retrospector.DataStorage.Medias
 {
-    public class MediaGateway : ICrudDataGateway<Media>
+    public class MediaDataGateway : ICrudDataGateway<Media>
     {
         private readonly IDatabaseContext _context;
         private readonly IMediaMapper _mapper;
 
-        public MediaGateway(IDatabaseContext context, IMediaMapper mapper)
+        public MediaDataGateway(IDatabaseContext context, IMediaMapper mapper)
         {
             _context = context;
             _mapper = mapper;

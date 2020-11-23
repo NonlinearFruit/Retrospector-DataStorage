@@ -7,12 +7,12 @@ using Retrospector.DataStorage.Factoids.Interfaces;
 
 namespace Retrospector.DataStorage.Factoids
 {
-    public class FactoidGateway : ICrudDataGateway<Factoid>
+    public class FactoidDataGateway : ICrudDataGateway<Factoid>
     {
         private readonly IDatabaseContext _context;
         private readonly IFactoidMapper _mapper;
 
-        public FactoidGateway(IDatabaseContext context, IFactoidMapper mapper)
+        public FactoidDataGateway(IDatabaseContext context, IFactoidMapper mapper)
         {
             _context = context;
             _mapper = mapper;

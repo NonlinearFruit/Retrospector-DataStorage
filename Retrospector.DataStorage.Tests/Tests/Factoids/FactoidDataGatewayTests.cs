@@ -2,44 +2,44 @@ using System;
 using System.Linq;
 using Retrospector.Core.Crud.Interfaces;
 using Retrospector.Core.Crud.Models;
-using Retrospector.DataStorage.Reviews;
-using Retrospector.DataStorage.Reviews.Entities;
+using Retrospector.DataStorage.Factoids;
+using Retrospector.DataStorage.Factoids.Entities;
 using Retrospector.DataStorage.Tests.TestDoubles;
-using Retrospector.DataStorage.Tests.TestDoubles.Reviews;
+using Retrospector.DataStorage.Tests.TestDoubles.Factoids;
 using Retrospector.DataStorage.Tests.Utilities;
 using Xunit;
 
-namespace Retrospector.DataStorage.Tests.Tests.Reviews
+namespace Retrospector.DataStorage.Tests.Tests.Factoids
 {
-    public class ReviewGatewayTests : IDisposable
+    public class FactoidDataGatewayTests : IDisposable
     {
-        private ICrudDataGateway<Review> _gateway;
+        private ICrudDataGateway<Factoid> _gateway;
         private DatabaseContext_TestDouble _arrangeContext;
         private DatabaseContext_TestDouble _actContext;
         private DatabaseContext_TestDouble _assertContext;
-        private ReviewMapper_TestDouble _mapper;
+        private FactoidMapper_TestDouble _mapper;
 
-        public ReviewGatewayTests()
+        public FactoidDataGatewayTests()
         {
             var id = Guid.NewGuid().ToString();
             _arrangeContext = new DatabaseContext_TestDouble(id);
             _actContext = new DatabaseContext_TestDouble(id);
             _assertContext = new DatabaseContext_TestDouble(id);
-            _mapper = new ReviewMapper_TestDouble();
-            _gateway = new ReviewGateway(_actContext, _mapper);
+            _mapper = new FactoidMapper_TestDouble();
+            _gateway = new FactoidDataGateway(_actContext, _mapper);
         }
 
-        public class Add : ReviewGatewayTests
+        public class Add : FactoidDataGatewayTests
         {
             public Add()
             {
-                _mapper.ReturnFor_ToEntity = new ReviewEntity();
+                _mapper.ReturnFor_ToEntity = new FactoidEntity();
             }
 
             [Fact]
             public void maps_model_to_entity()
             {
-                var model = new Review();
+                var model = new Factoid();
 
                 _gateway.Add(model);
 
@@ -50,18 +50,18 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             [Fact]
             public void stores_mapped_entity()
             {
-                var entity = new ReviewEntity{Content = "American Gospel"};
+                var entity = new FactoidEntity{Title = "American Gospel"};
                 _mapper.ReturnFor_ToEntity = entity;
 
                 _gateway.Add(null);
 
-                Assert.Contains(entity.Content, _assertContext.Reviews.Select(f => f.Content));
+                Assert.Contains(entity.Title, _assertContext.Factoids.Select(f => f.Title));
             }
 
             [Fact]
             public void maps_entity_back_to_model()
             {
-                var entity = new ReviewEntity();
+                var entity = new FactoidEntity();
                 _mapper.ReturnFor_ToEntity = entity;
 
                 _gateway.Add(null);
@@ -73,7 +73,7 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             [Fact]
             public void returns_mapped_model()
             {
-                var model = new Review();
+                var model = new Factoid();
                 _mapper.ReturnFor_ToModel = model;
 
                 var returned = _gateway.Add(null);
@@ -82,26 +82,26 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             }
         }
 
-        public class Get : ReviewGatewayTests
+        public class Get : FactoidDataGatewayTests
         {
             [Fact]
             public void maps_entity_to_model()
             {
-                var entity = _arrangeContext.Reviews.Add(new ReviewEntity{Content = "In Spirit & Truth"}).Entity;
+                var entity = _arrangeContext.Factoids.Add(new FactoidEntity{Title = "In Spirit & Truth"}).Entity;
                 _arrangeContext.SaveChanges();
 
                 _gateway.Get(entity.Id);
 
                 Assert.Equal(Verify.Once, _mapper.CountOf_ToModel_Calls);
-                Assert.Equal(entity.Content, _mapper.LastEntityPassedTo_ToModel.Content);
+                Assert.Equal(entity.Title, _mapper.LastEntityPassedTo_ToModel.Title);
             }
 
             [Fact]
             public void returns_mapped_model()
             {
-                var entity = _arrangeContext.Reviews.Add(new ReviewEntity{Content = "In Spirit & Truth"}).Entity;
+                var entity = _arrangeContext.Factoids.Add(new FactoidEntity{Title = "In Spirit & Truth"}).Entity;
                 _arrangeContext.SaveChanges();
-                var model = new Review();
+                var model = new Factoid();
                 _mapper.ReturnFor_ToModel = model;
 
                 var returnedModel = _gateway.Get(entity.Id);
@@ -118,14 +118,14 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             [Fact]
             public void throws_exception_when_wrong_entity()
             {
-                var entity = _arrangeContext.Reviews.Add(new ReviewEntity{Content = "In Spirit & Truth"}).Entity;
+                var entity = _arrangeContext.Factoids.Add(new FactoidEntity{Title = "In Spirit & Truth"}).Entity;
                 _arrangeContext.SaveChanges();
 
                 Assert.ThrowsAny<Exception>(() => _gateway.Get(entity.Id+1));
             }
         }
 
-        public class Delete : ReviewGatewayTests
+        public class Delete : FactoidDataGatewayTests
         {
             [Fact]
             public void throws_exception_when_no_entity()
@@ -136,7 +136,7 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             [Fact]
             public void throws_exception_when_wrong_entity()
             {
-                var entity = _arrangeContext.Reviews.Add(new ReviewEntity{Content = "In Spirit & Truth"}).Entity;
+                var entity = _arrangeContext.Factoids.Add(new FactoidEntity{Title = "In Spirit & Truth"}).Entity;
                 _arrangeContext.SaveChanges();
 
                 Assert.ThrowsAny<Exception>(() => _gateway.Delete(entity.Id+1));
@@ -145,16 +145,16 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             [Fact]
             public void removes_factoid()
             {
-                var entity = _arrangeContext.Reviews.Add(new ReviewEntity{Content = "In Spirit & Truth"}).Entity;
+                var entity = _arrangeContext.Factoids.Add(new FactoidEntity{Title = "In Spirit & Truth"}).Entity;
                 _arrangeContext.SaveChanges();
 
                 _gateway.Delete(entity.Id);
 
-                Assert.Empty(_assertContext.Reviews);
+                Assert.Empty(_assertContext.Factoids);
             }
         }
 
-        public class GetAll : ReviewGatewayTests
+        public class GetAll : FactoidDataGatewayTests
         {
             [Fact]
             public void empty_list_when_no_entities()
@@ -171,7 +171,7 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             public void calls_mapper(int numberOfEntities)
             {
                 for (var i = 0; i < numberOfEntities; i++)
-                    _arrangeContext.Reviews.Add(new ReviewEntity());
+                    _arrangeContext.Factoids.Add(new FactoidEntity());
                 _arrangeContext.SaveChanges();
 
                 _gateway.GetAll().ToList();
@@ -182,20 +182,20 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             [Fact]
             public void passes_entity_to_mapper()
             {
-                var entity = _arrangeContext.Reviews.Add(new ReviewEntity{Content = "Genre"}).Entity;
+                var entity = _arrangeContext.Factoids.Add(new FactoidEntity{Title = "Genre"}).Entity;
                 _arrangeContext.SaveChanges();
 
                 _gateway.GetAll().ToList();
 
-                Assert.Equal(entity.Content, _mapper.LastEntityPassedTo_ToModel.Content);
+                Assert.Equal(entity.Title, _mapper.LastEntityPassedTo_ToModel.Title);
             }
 
             [Fact]
             public void returns_mapped_model()
             {
-                _arrangeContext.Reviews.Add(new ReviewEntity{Content = "Genre"});
+                _arrangeContext.Factoids.Add(new FactoidEntity{Title = "Genre"});
                 _arrangeContext.SaveChanges();
-                var model = new Review();
+                var model = new Factoid();
                 _mapper.ReturnFor_ToModel = model;
 
                 var models = _gateway.GetAll().ToList();
@@ -204,7 +204,7 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             }
         }
 
-        public class GetByMediaId : ReviewGatewayTests
+        public class GetByMediaId : FactoidDataGatewayTests
         {
             [Fact]
             public void empty_list_when_no_entities()
@@ -222,7 +222,7 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             {
                 var mediaId = 5;
                 for (var i = 0; i < numberOfEntities; i++)
-                    _arrangeContext.Reviews.Add(new ReviewEntity{MediaId = 5});
+                    _arrangeContext.Factoids.Add(new FactoidEntity{MediaId = 5});
                 _arrangeContext.SaveChanges();
 
                 _gateway.GetByMediaId(mediaId).ToList();
@@ -234,21 +234,21 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             public void passes_entity_to_mapper()
             {
                 var mediaId = 5;
-                var entity = _arrangeContext.Reviews.Add(new ReviewEntity{Content = "Genre", MediaId = mediaId}).Entity;
+                var entity = _arrangeContext.Factoids.Add(new FactoidEntity{Title = "Genre", MediaId = mediaId}).Entity;
                 _arrangeContext.SaveChanges();
 
                 _gateway.GetByMediaId(mediaId).ToList();
 
-                Assert.Equal(entity.Content, _mapper.LastEntityPassedTo_ToModel.Content);
+                Assert.Equal(entity.Title, _mapper.LastEntityPassedTo_ToModel.Title);
             }
 
             [Fact]
             public void returns_mapped_model()
             {
                 var mediaId = 5;
-                _arrangeContext.Reviews.Add(new ReviewEntity{Content = "Genre", MediaId = mediaId});
+                _arrangeContext.Factoids.Add(new FactoidEntity{Title = "Genre", MediaId = mediaId});
                 _arrangeContext.SaveChanges();
-                var model = new Review();
+                var model = new Factoid();
                 _mapper.ReturnFor_ToModel = model;
 
                 var models = _gateway.GetByMediaId(mediaId).ToList();
@@ -260,9 +260,9 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             public void does_not_return_wrong_entity()
             {
                 var mediaId = 5;
-                _arrangeContext.Reviews.Add(new ReviewEntity{Content = "Genre", MediaId = mediaId});
+                _arrangeContext.Factoids.Add(new FactoidEntity{Title = "Genre", MediaId = mediaId});
                 _arrangeContext.SaveChanges();
-                var model = new Review();
+                var model = new Factoid();
                 _mapper.ReturnFor_ToModel = model;
 
                 var models = _gateway.GetByMediaId(mediaId+1).ToList();
@@ -271,19 +271,19 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             }
         }
 
-        public class Update : ReviewGatewayTests
+        public class Update : FactoidDataGatewayTests
         {
             public Update()
             {
-                _mapper.ReturnFor_ToEntity = new ReviewEntity();
+                _mapper.ReturnFor_ToEntity = new FactoidEntity();
             }
 
             [Fact]
             public void maps_model_to_entity()
             {
-                _mapper.ReturnFor_ToEntity = _arrangeContext.Reviews.Add(new ReviewEntity()).Entity;
+                _mapper.ReturnFor_ToEntity = _arrangeContext.Factoids.Add(new FactoidEntity()).Entity;
                 _arrangeContext.SaveChanges();
-                var model = new Review();
+                var model = new Factoid();
 
                 _gateway.Update(model);
 
@@ -294,22 +294,22 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             [Fact]
             public void maps_entity_to_model()
             {
-                var entity = _arrangeContext.Reviews.Add(new ReviewEntity{Content = "Creator"}).Entity;
+                var entity = _arrangeContext.Factoids.Add(new FactoidEntity{Title = "Creator"}).Entity;
                 _mapper.ReturnFor_ToEntity = entity;
                 _arrangeContext.SaveChanges();
 
                 _gateway.Update(null);
 
                 Assert.Equal(Verify.Once, _mapper.CountOf_ToModel_Calls);
-                Assert.Equal(entity.Content, _mapper.LastEntityPassedTo_ToModel.Content);
+                Assert.Equal(entity.Title, _mapper.LastEntityPassedTo_ToModel.Title);
             }
 
             [Fact]
             public void returns_mapped_model()
             {
-                _mapper.ReturnFor_ToEntity = _arrangeContext.Reviews.Add(new ReviewEntity()).Entity;
+                _mapper.ReturnFor_ToEntity = _arrangeContext.Factoids.Add(new FactoidEntity()).Entity;
                 _arrangeContext.SaveChanges();
-                var model = new Review();
+                var model = new Factoid();
                 _mapper.ReturnFor_ToModel = model;
 
                 var returnedModel = _gateway.Update(null);
@@ -320,7 +320,7 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             [Fact]
             public void throws_exception_when_no_entity()
             {
-                _mapper.ReturnFor_ToEntity = new ReviewEntity();
+                _mapper.ReturnFor_ToEntity = new FactoidEntity();
 
                 Assert.ThrowsAny<Exception>(() => _gateway.Update(null));
             }
@@ -328,8 +328,9 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             [Fact]
             public void throws_exception_when_no_wrong_entity()
             {
-                var wrongEntityId = ArrangeReviewEntity();
-                _mapper.ReturnFor_ToEntity = new ReviewEntity{Id = wrongEntityId + 1};
+                var wrongEntity = _arrangeContext.Factoids.Add(new FactoidEntity()).Entity;
+                _arrangeContext.SaveChanges();
+                _mapper.ReturnFor_ToEntity = new FactoidEntity{Id = wrongEntity.Id + 1};
 
                 Assert.ThrowsAny<Exception>(() => _gateway.Update(null));
             }
@@ -338,8 +339,9 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             public void modifies_media_id()
             {
                 var mediaId = 43;
-                var entityId = ArrangeReviewEntity();
-                _mapper.ReturnFor_ToEntity = new ReviewEntity
+                var entityId = _arrangeContext.Factoids.Add(new FactoidEntity()).Entity.Id;
+                _arrangeContext.SaveChanges();
+                _mapper.ReturnFor_ToEntity = new FactoidEntity
                 {
                     Id    = entityId,
                     MediaId = mediaId
@@ -347,67 +349,35 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
 
                 _gateway.Update(null);
 
-                var entity = _assertContext.Reviews.First();
+                var entity = _assertContext.Factoids.First();
                 Assert.Equal(mediaId, entity.MediaId);
             }
 
             [Fact]
-            public void modifies_rating()
+            public void modifies_title()
             {
-                var rating = 5;
-                var entityId = ArrangeReviewEntity();
-                _mapper.ReturnFor_ToEntity = new ReviewEntity
+                var title = "Topic";
+                var entityId = _arrangeContext.Factoids.Add(new FactoidEntity()).Entity.Id;
+                _arrangeContext.SaveChanges();
+                _mapper.ReturnFor_ToEntity = new FactoidEntity
                 {
-                    Id = entityId,
-                    Rating = rating
+                    Id    = entityId,
+                    Title = title
                 };
 
                 _gateway.Update(null);
 
-                var entity = _assertContext.Reviews.First();
-                Assert.Equal(rating, entity.Rating);
-            }
-
-            [Fact]
-            public void modifies_date()
-            {
-                var date = DateTime.Now;
-                var entityId = ArrangeReviewEntity();
-                _mapper.ReturnFor_ToEntity = new ReviewEntity
-                {
-                    Id = entityId,
-                    Date = date
-                };
-
-                _gateway.Update(null);
-
-                var entity = _assertContext.Reviews.First();
-                Assert.Equal(date, entity.Date);
-            }
-
-            [Fact]
-            public void modifies_user()
-            {
-                var user = "Jon";
-                var entityId = ArrangeReviewEntity();
-                _mapper.ReturnFor_ToEntity = new ReviewEntity
-                {
-                    Id = entityId,
-                    User = user
-                };
-
-                _gateway.Update(null);
-
-                var entity = _assertContext.Reviews.First();
-                Assert.Equal(user, entity.User);
+                var entity = _assertContext.Factoids.First();
+                Assert.Equal(title, entity.Title);
             }
 
             [Fact]
             public void modifies_content()
             {
                 var content = "Topic";
-                var entityId = ArrangeReviewEntity();
-                _mapper.ReturnFor_ToEntity = new ReviewEntity
+                var entityId = _arrangeContext.Factoids.Add(new FactoidEntity()).Entity.Id;
+                _arrangeContext.SaveChanges();
+                _mapper.ReturnFor_ToEntity = new FactoidEntity
                 {
                     Id    = entityId,
                     Content = content
@@ -415,7 +385,7 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
 
                 _gateway.Update(null);
 
-                var entity = _assertContext.Reviews.First();
+                var entity = _assertContext.Factoids.First();
                 Assert.Equal(content, entity.Content);
             }
 
@@ -423,8 +393,9 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
             public void does_not_modify_created_date()
             {
                 var oldDateTime = DateTime.Now.AddDays(-3);
-                var entityId = ArrangeReviewEntity(new ReviewEntity {CreatedDate = oldDateTime});
-                _mapper.ReturnFor_ToEntity = new ReviewEntity
+                var entityId = _arrangeContext.Factoids.Add(new FactoidEntity{CreatedDate = oldDateTime}).Entity.Id;
+                _arrangeContext.SaveChanges();
+                _mapper.ReturnFor_ToEntity = new FactoidEntity
                 {
                     Id    = entityId,
                     CreatedDate = DateTime.Now
@@ -432,16 +403,8 @@ namespace Retrospector.DataStorage.Tests.Tests.Reviews
 
                 _gateway.Update(null);
 
-                var entity = _assertContext.Reviews.First();
+                var entity = _assertContext.Factoids.First();
                 Assert.Equal(oldDateTime, entity.CreatedDate);
-            }
-
-            private int ArrangeReviewEntity(ReviewEntity entity = null)
-            {
-                entity ??= new ReviewEntity();
-                var entityId = _arrangeContext.Reviews.Add(entity).Entity.Id;
-                _arrangeContext.SaveChanges();
-                return entityId;
             }
         }
 
