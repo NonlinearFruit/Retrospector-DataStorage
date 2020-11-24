@@ -1,18 +1,15 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using Retrospector.DataStorage.Factoids.Entities;
-using Retrospector.DataStorage.Medias.Entities;
-using Retrospector.DataStorage.Reviews.Entities;
 
 namespace Retrospector.DataStorage.Tests.TestDoubles
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class DatabaseContext_TestDouble : DbContext, IDatabaseContext
+    public class DatabaseContext_TestDouble : DatabaseContext, IDatabaseContext
     {
         private readonly string _id;
 
-        public DatabaseContext_TestDouble(string id = null)
+        public DatabaseContext_TestDouble(string id = null) : base(null)
         {
             _id = id ?? Guid.NewGuid().ToString();
         }
@@ -21,9 +18,5 @@ namespace Retrospector.DataStorage.Tests.TestDoubles
         {
             optionsBuilder.UseInMemoryDatabase(_id);
         }
-
-        public DbSet<FactoidEntity> Factoids { get; set; }
-        public DbSet<ReviewEntity> Reviews { get; set; }
-        public DbSet<MediaEntity> Media { get; set; }
     }
 }

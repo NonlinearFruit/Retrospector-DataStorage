@@ -7,15 +7,17 @@ namespace Retrospector.DataStorage
 {
     public class DatabaseContext : DbContext, IDatabaseContext
     {
-        private static DbContextOptions<DatabaseContext> GetOptions(DatabaseConfiguration config)
+        private readonly DatabaseConfiguration _config;
+
+        public DatabaseContext(DatabaseConfiguration config)
         {
-            var options = new DbContextOptionsBuilder<DatabaseContext>();
-            options.UseSqlServer(config.ConnectionString);
-            return options.Options;
+            _config = config;
         }
 
-        public DatabaseContext(DatabaseConfiguration config) : base(GetOptions(config))
-        {}
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlServer(_config.ConnectionString);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
