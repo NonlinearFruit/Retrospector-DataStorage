@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Linq;
 using Retrospector.Core.Crud.Models;
 using Retrospector.DataStorage.Factoids.Entities;

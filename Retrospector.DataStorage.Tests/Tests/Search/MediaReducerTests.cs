@@ -1,8 +1,5 @@
-using System;
 using Retrospector.Core.Search.Models;
-using Retrospector.DataStorage.Factoids.Entities;
 using Retrospector.DataStorage.Medias.Entities;
-using Retrospector.DataStorage.Reviews.Entities;
 using Retrospector.DataStorage.Search;
 using Retrospector.DataStorage.Search.Interfaces;
 using Retrospector.DataStorage.Tests.Utilities;
