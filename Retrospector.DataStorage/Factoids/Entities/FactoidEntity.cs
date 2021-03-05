@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Retrospector.Core.Crud.Models;
+using Retrospector.DataStorage.Medias.Entities;
 
 namespace Retrospector.DataStorage.Factoids.Entities
 {
@@ -14,6 +14,6 @@ namespace Retrospector.DataStorage.Factoids.Entities
         public string Content { get; set; }
         public DateTime CreatedDate { get; set; }
         public int MediaId { get; set; }
-        public virtual Media Media { get; set; }
+        public virtual MediaEntity Media { get; set; }
     }
 }

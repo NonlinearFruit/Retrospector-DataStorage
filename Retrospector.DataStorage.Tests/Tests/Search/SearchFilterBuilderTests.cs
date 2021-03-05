@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Retrospector.Core.Search.Models;
@@ -68,17 +67,6 @@ namespace Retrospector.DataStorage.Tests.Tests.Search
         {
             var function = _builder.BuildFilter(new QueryTree());
             function.Invoke(new MediaEntity(), new ReviewEntity(), new FactoidEntity());
-        }
-
-        [Fact]
-        public void delegate_always_returns_true_when_set_to_leaf()
-        {
-            var query = ArrangeQuery(OperatorType.Leaf);
-
-            var function = _builder.BuildFilter(query);
-            var isMatch = function.Invoke(new MediaEntity(), new ReviewEntity(), new FactoidEntity());
-
-            Assert.True(isMatch);
         }
 
         [Fact]
@@ -153,11 +141,9 @@ namespace Retrospector.DataStorage.Tests.Tests.Search
             return new QueryTree
             {
                 Type = type,
-                Branches = Enumerable.Repeat(new QueryTree
-                {
-                    Type = OperatorType.Leaf,
-                    Leaves = new List<QueryLeaf> {new QueryLeaf()}
-                }, countOfLeaves).ToList()
+                Leaves = Enumerable
+                    .Repeat(new QueryLeaf(), countOfLeaves)
+                    .ToList()
             };
         }
     }

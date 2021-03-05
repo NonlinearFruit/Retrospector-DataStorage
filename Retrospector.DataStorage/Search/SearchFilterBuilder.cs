@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Retrospector.Core.Search.Models;
@@ -26,10 +26,10 @@ namespace Retrospector.DataStorage.Search
 
         public Filter BuildFilter(QueryTree tree)
         {
-            if (tree == null || tree.Type == OperatorType.GiveMeEverything || tree.Type == OperatorType.Leaf)
+            if (tree == null || tree.Type == OperatorType.GiveMeEverything)
                 return MatchEverything;
             var expression = ParseTree(tree);
-            return Compile(expression.First());
+            return Compile(expression);
         }
 
         private Filter Compile(Expression expression)
@@ -45,22 +45,23 @@ namespace Retrospector.DataStorage.Search
             return Expression.Invoke(func, _mediaParameter, _reviewParameter, _factoidParameter);
         }
 
-        private IEnumerable<Expression> ParseTree(QueryTree tree)
+        private Expression ParseTree(QueryTree tree)
         {
             if (tree.Type == OperatorType.GiveMeEverything)
-                return new []{MatchEverything2};
-            if (tree.Type == OperatorType.Leaf)
-                return tree.Leaves.Select(l => (Expression) Invoke(_leafBuilder.BuildExpression(l)));
+                return MatchEverything2;
             var expressions = tree
                 .Branches
-                .SelectMany(ParseTree)
+                .Select(ParseTree)
+                .Concat(tree.Leaves.Select(l => (Expression) Invoke(_leafBuilder.BuildExpression(l))))
                 .DefaultIfEmpty(Invoke(MatchEverything2));
-            return new [] {tree.Type switch
+            return tree.Type switch
             {
                 OperatorType.Not => Expression.Not(expressions.First()),
                 OperatorType.And => expressions.Aggregate(Expression.And),
-                OperatorType.Or => expressions.Aggregate(Expression.Or)
-            }};
+                OperatorType.Or => expressions.Aggregate(Expression.Or),
+                OperatorType.GiveMeEverything => throw new ArgumentOutOfRangeException(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 }

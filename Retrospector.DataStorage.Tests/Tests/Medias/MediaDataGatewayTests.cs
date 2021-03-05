@@ -214,6 +214,7 @@ namespace Retrospector.DataStorage.Tests.Tests.Medias
                 Assert.Empty(entities);
             }
 
+            [Fact]
             public void calls_mapper()
             {
                 var mediaId = 5;
