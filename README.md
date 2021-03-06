@@ -1,4 +1,5 @@
 # Retrospector-DataStorage
+[![release](https://img.shields.io/github/v/tag/NonlinearFruit/Retrospector-DataStorage?label=release)](https://github.com/NonlinearFruit/Retrospector-DataStorage/packages/655041)
 [![build](https://img.shields.io/github/workflow/status/NonlinearFruit/Retrospector-DataStorage/dotnet-core)](https://github.com/NonlinearFruit/Retrospector-DataStorage/actions?query=workflow%3Adotnet-core)
 [![coverage](https://img.shields.io/codecov/c/gh/NonlinearFruit/Retrospector-DataStorage.svg)](https://codecov.io/gh/NonlinearFruit/Retrospector-DataStorage)
 [![maintainability](https://api.codeclimate.com/v1/badges/74c2c9f1864e1ec37987/maintainability)](https://codeclimate.com/github/NonlinearFruit/Retrospector-DataStorage/maintainability)
